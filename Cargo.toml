@@ -1,0 +1,8 @@
+[package]
+name = "simple_messenger_on_rust"
+description = "A simple messenger on the rust"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97.0"
+
+[dependencies]
