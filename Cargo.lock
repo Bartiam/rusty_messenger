@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "simple_messenger_on_rust"
+name = "rusty_messenger"
 version = "0.1.0"

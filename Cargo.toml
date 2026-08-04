@@ -1,5 +1,5 @@
 [package]
-name = "simple_messenger_on_rust"
+name = "rusty_messenger"
 description = "A simple messenger on the rust"
 version = "0.1.0"
 edition = "2024"
