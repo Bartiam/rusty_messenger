@@ -1,1 +1,1 @@
-# simple_messenger_on_rust
+# rusty messenger
