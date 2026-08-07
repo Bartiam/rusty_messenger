@@ -1,46 +1,50 @@
-use axum::{
-    extract::ws::{WebSocket, WebSocketUpgrade},
-    response::Response,
-    routing::get,
-    Router
-};
+use axum::{Json, Router, response::IntoResponse, routing::{get, post}};
+use serde::{Deserialize, Serialize};
+use tokio::net::TcpListener;
+
+#[derive(Deserialize)]
+struct CreateUserRequest {
+    username: String,
+    _email: String,
+}
+
+#[derive(Serialize)]
+struct UserProfile {
+    user_id: String,
+    username: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    bio: Option<String>
+}
+
+
+async fn health_handler() -> impl IntoResponse {
+    "OK"
+}
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt::init();
-
     let app = Router::new()
-        .route("/", get(hello_world))
-        .route("/ws", get(websocket_handler));
+        .route("/health", get(health_handler))
+        .route("/users", post(create_user));
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000")
+    let listener = TcpListener::bind("0.0.0.0:3000")
         .await
         .unwrap();
-    tracing::info!("Сервер запущен на http://localhost:8000 и ws://localhost:8000/ws");
-    axum::serve(listener, app).await.unwrap();
 
-
+    axum::serve(listener, app)
+        .await
+        .unwrap();
 }
 
-async fn hello_world() -> &'static str {
-    "Hello World!"
-}
+async fn create_user(
+    Json(payload): Json<CreateUserRequest>,
+) -> Json<UserProfile> {
+    let response = UserProfile {
+        user_id: "uuid-v4-placeholder".to_string(),
+        username: payload.username,
+        bio: None,
+    };
 
-async fn websocket_handler(ws: WebSocketUpgrade) -> Response {
-    ws.on_upgrade(handle_socket)
-}
-
-async fn handle_socket(mut socket: WebSocket) {
-    tracing::info!("Клиент подключился!");
-
-    while let Some(Ok(msg)) = socket.recv().await {
-        tracing::info!("Получено сообщение: {:?}", msg);
-
-        if socket.send(msg).await.is_err() {
-            tracing::warn!("Клиент отключился при отправке!");
-            break;
-        }
-    }
-
-    tracing::info!("Клиент отключился!");
+    Json(response)
 }
