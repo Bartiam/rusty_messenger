@@ -1,46 +1,87 @@
 use axum::{
-    extract::ws::{WebSocket, WebSocketUpgrade},
-    response::Response,
-    routing::get,
-    Router
+    Json, 
+    Router, 
+    routing::{get, post}
 };
+
+use serde::{
+    Deserialize, 
+    Serialize
+};
+
+use tokio::{
+    net::TcpListener,
+    signal,
+};
+
+#[derive(Deserialize)]
+struct CreateUserRequest {
+    username: String,
+    _email: String,
+}
+
+#[derive(Serialize)]
+struct UserProfile {
+    user_id: String,
+    username: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    bin: Option<String>,
+}
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt::init();
-
     let app = Router::new()
-        .route("/", get(hello_world))
-        .route("/ws", get(websocket_handler));
+        .route("/health", get(|| async { "OK "}))
+        .route("/users", post(create_user));
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000")
+    let listener = TcpListener::bind("0.0.0.0:3000")
         .await
         .unwrap();
-    tracing::info!("Сервер запущен на http://localhost:8000 и ws://localhost:8000/ws");
-    axum::serve(listener, app).await.unwrap();
 
-
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
+        .await
+        .unwrap();
 }
 
-async fn hello_world() -> &'static str {
-    "Hello World!"
+async fn create_user(
+    Json(payload): Json<CreateUserRequest>
+) -> Json<UserProfile> {
+    let response = UserProfile {
+        user_id: "sdfsf".to_string(),
+        username: payload.username,
+        bin: None,
+    };
+
+    Json(response)
 }
 
-async fn websocket_handler(ws: WebSocketUpgrade) -> Response {
-    ws.on_upgrade(handle_socket)
-}
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("Failed to install the Ctrl+C handler");
+    };
 
-async fn handle_socket(mut socket: WebSocket) {
-    tracing::info!("Клиент подключился!");
+    #[cfg(unix)]
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("Failed to install the SIGTERM handler")
+            .recv()
+            .await
+    };
 
-    while let Some(Ok(msg)) = socket.recv().await {
-        tracing::info!("Получено сообщение: {:?}", msg);
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
 
-        if socket.send(msg).await.is_err() {
-            tracing::warn!("Клиент отключился при отправке!");
-            break;
-        }
-    }
+    tokio::select! {
+        _ = ctrl_c => {
+            println!("The SIGINT signal (Ctrl+C) has been received, and we are starting a smooth stop...");
+        },
 
-    tracing::info!("Клиент отключился!");
+        _ = terminate => {
+            println!("A SIGTERM signal has been received, and we are starting a smooth stop...");
+        },
+    };
 }
