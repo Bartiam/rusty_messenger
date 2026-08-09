@@ -1,12 +1,6 @@
 use axum::{
-    Json, 
     Router, 
     routing::{get, post}
-};
-
-use serde::{
-    Deserialize, 
-    Serialize
 };
 
 use tokio::{
@@ -14,26 +8,14 @@ use tokio::{
     signal,
 };
 
-#[derive(Deserialize)]
-struct CreateUserRequest {
-    username: String,
-    _email: String,
-}
-
-#[derive(Serialize)]
-struct UserProfile {
-    user_id: String,
-    username: String,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    bin: Option<String>,
-}
+mod domain;
+mod api;
 
 #[tokio::main]
 async fn main() {
     let app = Router::new()
         .route("/health", get(|| async { "OK "}))
-        .route("/users", post(create_user));
+        .route("/users", post(api::handlers::create_user));
 
     let listener = TcpListener::bind("0.0.0.0:3000")
         .await
@@ -43,18 +25,6 @@ async fn main() {
         .with_graceful_shutdown(shutdown_signal())
         .await
         .unwrap();
-}
-
-async fn create_user(
-    Json(payload): Json<CreateUserRequest>
-) -> Json<UserProfile> {
-    let response = UserProfile {
-        user_id: "sdfsf".to_string(),
-        username: payload.username,
-        bin: None,
-    };
-
-    Json(response)
 }
 
 async fn shutdown_signal() {
