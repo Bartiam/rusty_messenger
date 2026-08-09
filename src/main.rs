@@ -1,23 +1,24 @@
-use axum::{
-    Router, 
-    routing::{get, post}
-};
+mod domain;
+mod api;
+mod infrastructure;
 
 use tokio::{
     net::TcpListener,
     signal,
 };
 
-mod domain;
-mod api;
+use infrastructure::config::Config;
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new()
-        .route("/health", get(|| async { "OK "}))
-        .route("/users", post(api::handlers::create_user));
+    let config = Config::load();
 
-    let listener = TcpListener::bind("0.0.0.0:3000")
+    println!("Запуск сервера на порту: {}", config.port);
+
+    let app = api::handlers::create_router();
+    let addr = format!("0.0.0.0:{}", config.port);
+
+    let listener = TcpListener::bind(&addr)
         .await
         .unwrap();
 
