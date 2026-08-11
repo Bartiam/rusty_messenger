@@ -20,8 +20,6 @@ async fn main() {
         config
     };
 
-    println!("Запуск сервера на порту: {}", state.config.port);
-
     let addr = format!("0.0.0.0:{}", state.config.port);
 
     let app = Router::new()
