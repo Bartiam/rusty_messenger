@@ -2,6 +2,7 @@ mod domain;
 mod api;
 mod infrastructure;
 
+use axum::{Router, routing::{get, post}};
 use tokio::{
     net::TcpListener,
     signal,
@@ -9,14 +10,24 @@ use tokio::{
 
 use infrastructure::config::Config;
 
+use crate::{api::handlers::create_user, domain::models::AppState};
+
 #[tokio::main]
 async fn main() {
     let config = Config::load();
 
-    println!("Запуск сервера на порту: {}", config.port);
+    let state = AppState {
+        config
+    };
 
-    let app = api::handlers::create_router();
-    let addr = format!("0.0.0.0:{}", config.port);
+    println!("Запуск сервера на порту: {}", state.config.port);
+
+    let addr = format!("0.0.0.0:{}", state.config.port);
+
+    let app = Router::new()
+        .route("/health", get(|| async { "OK" }))
+        .route("/users", post(create_user))
+        .with_state(state);
 
     let listener = TcpListener::bind(&addr)
         .await
