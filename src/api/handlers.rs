@@ -1,9 +1,9 @@
 use axum::extract::State;
 
-use crate::domain::models::AppState;
+use crate::infrastructure::config::Config;
 
 pub async fn create_user(
-    State(state): State<AppState>
+    State(config): State<Config>,
 ) -> String {
-    format!("Сервер запущен на порту {}", state.config.port)
+    format!("Сервер запущен на порту: {}", config.port)
 }
