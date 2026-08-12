@@ -7,13 +7,22 @@ use tokio::{
     net::TcpListener,
     signal,
 };
-
 use infrastructure::config::Config;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tower_http::trace::TraceLayer;
 
 use crate::{api::handlers::create_user, domain::models::AppState};
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::EnvFilter::try_from_default_env()
+            .unwrap_or_else(|_| "rusty_messenger=debug,tower_http=debug,info".into()))
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
+    tracing::info!("Launching the messenger server");
+
     let config = Config::load();
 
     let state = AppState {
@@ -25,6 +34,7 @@ async fn main() {
     let app = Router::new()
         .route("/health", get(|| async { "OK" }))
         .route("/users", post(create_user))
+        .layer(TraceLayer::new_for_http())
         .with_state(state);
 
     let listener = TcpListener::bind(&addr)

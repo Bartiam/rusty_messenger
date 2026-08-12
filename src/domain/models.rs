@@ -3,14 +3,12 @@ use serde::{
     Serialize
 };
 
-use serde_json::json;
-
 use axum:: {
     extract::FromRef,
     http::StatusCode,
     response::{IntoResponse, Response},
-    Json
 };
+use tracing::error;
 
 use crate::infrastructure::config::Config;
 
@@ -22,25 +20,19 @@ pub enum AppError {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        // 1. Determine the status and message for the client
-        let (status, client_message) = match self {
-            AppError::InvalidInput(msg) => (StatusCode::BAD_REQUEST, msg),
-            AppError::NotFound => (StatusCode::NOT_FOUND, "The resource was not found".to_string()),
-            AppError::Internal(_) => (
-                // IMPORTANT: We ignore the internal cause of the error (_)
-                // and give the client only the general phrase.
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Internal server error".to_string(),
-            ),
-        };
-
-        // 2. Creating standardized JSON
-        let body = Json(json!({
-            "error": client_message
-        }));
-
-        // 3. Collecting the final HTTP response
-        (status, body).into_response()
+        match self {
+            AppError::InvalidInput(msg) => {
+                (StatusCode::BAD_REQUEST, msg).into_response()
+            },
+            AppError::NotFound => (StatusCode::NOT_FOUND, "The resource was not found".to_string()).into_response(),
+            AppError::Internal(err) => {
+                // Logging a real bug for developers!
+                // This will include errors in the database, network, and file system
+                error!(error = %err, "Внутренняя ошибка сервера");
+                // We give the client a secure plug
+                (StatusCode::INTERNAL_SERVER_ERROR, "Внутренняя ошибка").into_response()
+            },
+        }
     }
 }
 
