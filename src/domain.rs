@@ -9,4 +9,4 @@ async fn read_config() -> Result<Json<String>, AppError> {
     // From::from() and returns AppError::Internal
     let content = std::fs::read_to_string("config.json")?;
     Ok(Json(content))
- }
+}
