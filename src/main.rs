@@ -2,6 +2,8 @@ mod domain;
 mod api;
 mod infrastructure;
 
+use std::time::Duration;
+
 use axum::{Router, routing::{get, post}};
 use tokio::{
     net::TcpListener,
@@ -10,8 +12,11 @@ use tokio::{
 use infrastructure::config::Config;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use tower_http::trace::TraceLayer;
+use sqlx::{postgres::PgPoolOptions};
 
-use crate::{api::handlers::create_user, domain::models::AppState};
+use crate::{api::handlers::{create_user, db_health_check}, domain::models::AppState};
+
+const MAX_CONNECT: u32 = 50;
 
 #[tokio::main]
 async fn main() {
@@ -25,8 +30,16 @@ async fn main() {
 
     let config = Config::load();
 
+    let pool = PgPoolOptions::new()
+        .max_connections(MAX_CONNECT)
+        .acquire_timeout(Duration::from_secs(3))
+        .connect(&config.database_url)
+        .await
+        .expect("");
+
     let state = AppState {
-        config
+        config,
+        db: pool
     };
 
     let addr = format!("0.0.0.0:{}", state.config.port);
@@ -34,6 +47,7 @@ async fn main() {
     let app = Router::new()
         .route("/health", get(|| async { "OK" }))
         .route("/users", post(create_user))
+        .route("/health/db", get(db_health_check))
         .layer(TraceLayer::new_for_http())
         .with_state(state);
 

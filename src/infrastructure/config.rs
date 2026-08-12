@@ -1,6 +1,9 @@
+use axum::extract::FromRef;
 use clap::Parser;
 
-#[derive(Parser, Debug, Clone)]
+use crate::domain::models::AppState;
+
+#[derive(Parser, Debug, Clone, FromRef)]
 pub struct Config {
     /// The port where the HTTP server will be running
     #[arg(long, env = "PORT", default_value_t = 3000)]
@@ -19,5 +22,11 @@ impl Config {
 
         // Parsing environment variables into a strongly typed structure
         Self::parse()
+    }
+}
+
+impl FromRef<AppState> for Config {
+    fn from_ref(app_state: &AppState) -> Config {
+        app_state.config.clone()
     }
 }

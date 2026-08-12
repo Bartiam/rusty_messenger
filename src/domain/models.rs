@@ -8,6 +8,7 @@ use axum:: {
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use sqlx::PgPool;
 use tracing::error;
 
 use crate::infrastructure::config::Config;
@@ -43,10 +44,16 @@ impl From<std::io::Error> for AppError {
     }
 }
 
-#[derive(Clone, FromRef)]
+#[derive(Clone)]
 pub struct AppState {
     pub config: Config,
-    // pub db_pool: PgPool,
+    pub db: PgPool,
+}
+
+impl FromRef<AppState> for PgPool {
+    fn from_ref(app_state: &AppState) -> PgPool {
+        app_state.db.clone()
+    }
 }
 
 #[derive(Deserialize)]
