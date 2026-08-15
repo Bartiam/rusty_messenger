@@ -1,9 +1,6 @@
-use axum::extract::FromRef;
 use clap::Parser;
 
-use crate::domain::models::AppState;
-
-#[derive(Parser, Debug, Clone, FromRef)]
+#[derive(Parser, Debug, Clone)]
 pub struct Config {
     /// The port where the HTTP server will be running
     #[arg(long, env = "PORT", default_value_t = 3000)]
@@ -15,18 +12,8 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn load() -> Self {
-        // We are trying to load variables from the .env file, if it exists.
-        // Method .ok() ignores the error if there is no file (which is normal for production).
+    pub fn from_env() -> Self {
         dotenvy::dotenv().ok();
-
-        // Parsing environment variables into a strongly typed structure
         Self::parse()
-    }
-}
-
-impl FromRef<AppState> for Config {
-    fn from_ref(app_state: &AppState) -> Config {
-        app_state.config.clone()
     }
 }

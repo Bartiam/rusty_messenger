@@ -1,23 +1,30 @@
-use axum::{extract::State, response::IntoResponse, http::StatusCode};
-use sqlx::PgPool;
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use serde::Deserialize;
+use uuid::Uuid;
 
-use crate::infrastructure::config::Config;
+use crate::domain::models::User;
+use crate::error::AppError;
+use crate::state::AppState;
 
-pub async fn create_user(
-    State(config): State<Config>,
-) -> String {
-    format!("Сервер запущен на порту: {}", config.port)
+#[derive(Deserialize)]
+pub struct CreateUserRequest {
+    pub username: String,
+    pub email: String,
 }
 
-pub async fn db_health_check(
-    State(pool): State<PgPool>,
-) -> Result<impl IntoResponse, StatusCode> {
-    let result: Result<i32, _> = sqlx::query_scalar("SELECT 1")
-        .fetch_one(&pool)
-        .await;
+pub async fn create_user(
+    State(state): State<AppState>,
+    Json(payload): Json<CreateUserRequest>,
+) -> Result<Json<User>, AppError> {
+    let new_id = Uuid::new_v4();
+    let user = state
+        .user_repo
+        .create_user(new_id, payload.username, payload.email)
+        .await?;
 
-    match result {
-        Ok(1) => Ok((StatusCode::OK, "The connection to the database is stable.")),
-        _ => Err(StatusCode::SERVICE_UNAVAILABLE),
-    }
+    Ok(Json(user))
+}
+
+pub async fn health_check() -> impl IntoResponse {
+    StatusCode::OK
 }

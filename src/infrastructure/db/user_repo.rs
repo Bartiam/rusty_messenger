@@ -1,0 +1,67 @@
+use async_trait::async_trait;
+use sqlx::PgPool;
+use uuid::Uuid;
+
+use crate::domain::models::User;
+use crate::domain::repositories::UserRepository;
+use crate::error::AppError;
+
+pub struct PgUserRepository {
+    pool: PgPool,
+}
+
+impl PgUserRepository {
+    pub fn new(pool: PgPool) -> Self {
+        Self { pool } // Исправлено на синтаксис структуры с полями
+    }
+}
+
+#[async_trait]
+impl UserRepository for PgUserRepository {
+    async fn create_user(
+        &self,
+        id: Uuid,
+        username: String,
+        email: String,
+    ) -> Result<User, AppError> {
+        let user = sqlx::query_as!(
+            User,
+            r#"
+            INSERT INTO users (id, username, email)
+            VALUES ($1, $2, $3)
+            RETURNING id, username, email, created_at
+            "#,
+            id,
+            username,
+            email
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| {
+            tracing::error!("Failed to execute query: {:?}", e);
+            AppError::Internal("Database error".to_string())
+        })?;
+
+        Ok(user)
+    }
+
+    async fn get_user_by_id(&self, id: Uuid) -> Result<Option<User>, AppError> {
+        let user = sqlx::query_as!(
+            User,
+            r#"
+            SELECT id, username, email, created_at
+            FROM users
+            WHERE id = $1
+            "#,
+            id
+        )
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| {
+            tracing::error!("Failed to fetch user by id: {:?}", e);
+            AppError::Internal("Database error".to_string())
+        })?;
+
+        Ok(user)
+    }
+}
