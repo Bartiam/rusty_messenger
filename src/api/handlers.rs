@@ -12,7 +12,7 @@ pub struct CreateUserRequest {
     pub email: String,
 }
 
-pub async fn create_user(
+pub async fn create_user_handler(
     State(state): State<AppState>,
     Json(payload): Json<CreateUserRequest>,
 ) -> Result<Json<User>, AppError> {

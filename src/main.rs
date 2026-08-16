@@ -13,7 +13,7 @@ mod error;
 mod infrastructure;
 mod state;
 
-use api::handlers::{create_user, health_check};
+use api::handlers::{create_user_handler, health_check};
 use infrastructure::config::Config;
 use infrastructure::db::user_repo::PgUserRepository;
 use state::AppState;
@@ -42,12 +42,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/health", get(health_check))
-        .route("/users", post(create_user))
+        .route("/users", post(create_user_handler))
         .with_state(state);
 
     let addr = format!("0.0.0.0:{}", config.port);
     let listener = TcpListener::bind(&addr).await?;
-    tracing::info!("Сервер запущен на {}", addr);
+    tracing::info!("The server is running on {}", addr);
 
     axum::serve(listener, app).await?;
     Ok(())

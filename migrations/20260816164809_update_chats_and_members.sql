@@ -1,0 +1,5 @@
+ALTER TABLE chats 
+ADD COLUMN is_group BOOLEAN NOT NULL DEFAULT true;
+
+ALTER TABLE chat_members 
+ADD COLUMN role VARCHAR(50) NOT NULL DEFAULT 'member';

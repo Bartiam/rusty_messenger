@@ -12,7 +12,7 @@ pub struct PgUserRepository {
 
 impl PgUserRepository {
     pub fn new(pool: PgPool) -> Self {
-        Self { pool } // Исправлено на синтаксис структуры с полями
+        Self { pool }
     }
 }
 
