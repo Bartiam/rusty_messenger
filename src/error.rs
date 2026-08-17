@@ -23,9 +23,9 @@ impl IntoResponse for AppError {
             AppError::Internal(err) => {
                 // Logging a real bug for developers!
                 // This will include errors in the database, network, and file system
-                error!(error = %err, "Внутренняя ошибка сервера");
+                error!(error = %err, "Internal server error");
                 // We give the client a secure plug
-                (StatusCode::INTERNAL_SERVER_ERROR, "Внутренняя ошибка").into_response()
+                (StatusCode::INTERNAL_SERVER_ERROR, "Internal error").into_response()
             },
         }
     }
