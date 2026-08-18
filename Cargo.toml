@@ -19,3 +19,5 @@ sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "uuid"
 async-trait = "0.1.92"
 uuid = { version = "1.24.1", features = ["v4", "serde"] }
 chrono = { version = "0.4.45", features = ["serde"] }
+argon2 = "0.5.3"
+password-hash = "0.6.1"

@@ -18,7 +18,7 @@ impl PgChatRepository {
     ) -> Result<Uuid, AppError> {
         // Start the transaction.
         let mut tx = self.pool.begin().await
-            .map_err(|e| AppError::Internal(e.to_string()))?;
+            .map_err(|e| AppError::Internal)?;
 
         let chat_id = Uuid::new_v4();
 
@@ -30,7 +30,7 @@ impl PgChatRepository {
         )
         .execute(&mut *tx)
         .await
-        .map_err(|e| AppError::Internal(e.to_string()))?;
+        .map_err(|e| AppError::Internal)?;
 
         // Add the creator as an administrator
         sqlx::query!(
@@ -40,12 +40,12 @@ impl PgChatRepository {
         )
         .execute(&mut *tx)
         .await
-        .map_err(|e| AppError::Internal(e.to_string()))?;
+        .map_err(|e| AppError::Internal)?;
 
         // Explicitly record the transaction
         tx.commit().await
-            .map_err(|e| AppError::Internal(e.to_string()))?;
+            .map_err(|e| AppError::Internal)?;
 
-        core::result::Result::Ok(chat_id)
+        Ok(chat_id)
     }
 }

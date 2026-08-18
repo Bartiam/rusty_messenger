@@ -10,7 +10,7 @@ use tracing::error;
 pub enum AppError {
     InvalidInput(String),
     NotFound,
-    Internal(String),
+    Internal,
 }
 
 impl IntoResponse for AppError {
@@ -20,10 +20,7 @@ impl IntoResponse for AppError {
                 (StatusCode::BAD_REQUEST, msg).into_response()
             },
             AppError::NotFound => (StatusCode::NOT_FOUND, "The resource was not found".to_string()).into_response(),
-            AppError::Internal(err) => {
-                // Logging a real bug for developers!
-                // This will include errors in the database, network, and file system
-                error!(error = %err, "Internal server error");
+            AppError::Internal => {
                 // We give the client a secure plug
                 (StatusCode::INTERNAL_SERVER_ERROR, "Internal error").into_response()
             },
@@ -34,6 +31,7 @@ impl IntoResponse for AppError {
 impl From<std::io::Error> for AppError {
     fn from(err: std::io::Error) -> Self {
         // We treat any I/O error as an internal failure
-        AppError::Internal(err.to_string())
+        tracing::error!("I/O error: {:?}", err);
+        AppError::Internal
     }
 }
