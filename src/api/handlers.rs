@@ -2,7 +2,10 @@ use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use serde::Deserialize;
 use uuid::Uuid;
 
-use crate::domain::models::{User, UserProfile};
+use crate::domain:: {
+    models::UserProfile, 
+    password::hash_password,
+};
 use crate::error::AppError;
 use crate::state::AppState;
 
@@ -18,7 +21,7 @@ pub async fn create_user_handler(
     Json(payload): Json<CreateUserRequest>,
 ) -> Result<Json<UserProfile>, AppError> {
     // Hash the password (CPU‑bound operation)
-    let hashed_password = crate::domain::password::hash_password(&payload.password)?;
+    let hashed_password = hash_password(&payload.password)?;
 
     let new_id = Uuid::new_v4();
 

@@ -25,7 +25,7 @@ pub fn hash_password(passward: &str) -> Result<String, AppError> {
         .hash_password(passward.as_bytes(), &salt)
         .map_err(|e| {
             tracing::error!("Password hashing error: {}", e);
-            AppError::Internal(e.to_string())
+            AppError::Internal
         })?
         .to_string();
 
@@ -41,7 +41,7 @@ pub fn verify_password(
     let parsed_hash = PasswordHash::new(password_hash)
         .map_err(|e| {
             tracing::error!("Invalid hash format in the database: {}", e);
-            AppError::Internal(e.to_string())
+            AppError::Internal
         })?;
     
     // Password verification

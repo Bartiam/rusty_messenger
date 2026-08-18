@@ -41,7 +41,7 @@ impl UserRepository for PgUserRepository {
         .await
         .map_err(|e| {
             tracing::error!("Failed to execute query: {:?}", e);
-            AppError::Internal("Database error".to_string())
+            AppError::Internal
         })?;
 
         Ok(user)
@@ -61,7 +61,7 @@ impl UserRepository for PgUserRepository {
         .await
         .map_err(|e| {
             tracing::error!("Failed to fetch user by id: {:?}", e);
-            AppError::Internal("Database error".to_string())
+            AppError::Internal
         })?;
 
         Ok(user)
