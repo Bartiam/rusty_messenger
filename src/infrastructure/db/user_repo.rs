@@ -23,17 +23,19 @@ impl UserRepository for PgUserRepository {
         id: Uuid,
         username: String,
         email: String,
+        password_hash: String,
     ) -> Result<User, AppError> {
         let user = sqlx::query_as!(
             User,
             r#"
-            INSERT INTO users (id, username, email)
-            VALUES ($1, $2, $3)
-            RETURNING id, username, email, created_at
+            INSERT INTO users (id, username, email, password_hash)
+            VALUES ($1, $2, $3, $4)
+            RETURNING id, username, email, created_at, password_hash
             "#,
             id,
             username,
-            email
+            email,
+            password_hash,
         )
         .fetch_one(&self.pool)
         .await
@@ -49,7 +51,7 @@ impl UserRepository for PgUserRepository {
         let user = sqlx::query_as!(
             User,
             r#"
-            SELECT id, username, email, created_at
+            SELECT id, username, email, created_at, password_hash
             FROM users
             WHERE id = $1
             "#,

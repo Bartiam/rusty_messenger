@@ -46,6 +46,6 @@ impl PgChatRepository {
         tx.commit().await
             .map_err(|e| AppError::Internal(e.to_string()))?;
 
-        core::result::Result::Ok(chat_id)
+        Ok(chat_id)
     }
 }
