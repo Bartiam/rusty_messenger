@@ -66,4 +66,11 @@ impl UserRepository for PgUserRepository {
 
         Ok(user)
     }
+
+    async fn find_by_email(&self, email: &str) -> Result<Option<User>, AppError> {
+        sqlx::query_as!(User, "SELECT * FROM users WHERE email = $1", email)
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(AppError::from)
+    }
 }

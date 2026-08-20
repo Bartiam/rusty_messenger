@@ -13,7 +13,7 @@ use argon2::{
 use crate::error::AppError;
 
 /// Hashes the password in PHC format using Argon2id
-pub fn hash_password(passward: &str) -> Result<String, AppError> {
+pub fn hash_password(password: &str) -> Result<String, AppError> {
     // Generation of a cryptographically secure salt
     let salt = SaltString::generate(&mut OsRng);
 
@@ -22,7 +22,7 @@ pub fn hash_password(passward: &str) -> Result<String, AppError> {
 
     // Hash calculation and formatting into a PHC string
     let password_hash = argon2
-        .hash_password(passward.as_bytes(), &salt)
+        .hash_password(password.as_bytes(), &salt)
         .map_err(|e| {
             tracing::error!("Password hashing error: {}", e);
             AppError::Internal

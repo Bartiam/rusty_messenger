@@ -12,6 +12,7 @@ mod domain;
 mod error;
 mod infrastructure;
 mod state;
+mod jwt;
 
 use api::handlers::{create_user_handler, health_check};
 use infrastructure::config::Config;
