@@ -4,8 +4,6 @@ use axum::{
 
 };
 
-use tracing::error;
-
 #[derive(Debug)]
 pub enum AppError {
     InvalidInput(String),

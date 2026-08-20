@@ -21,3 +21,4 @@ uuid = { version = "1.24.1", features = ["v4", "serde"] }
 chrono = { version = "0.4.45", features = ["serde"] }
 argon2 = "0.5.3"
 password-hash = "0.6.1"
+jsonwebtoken = "11.0.0"
