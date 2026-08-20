@@ -9,6 +9,9 @@ pub struct Config {
     /// URL for connecting to the database
     #[arg(long, env = "DATABASE_URL")]
     pub database_url: String,
+
+    #[arg(long, env = "JWT_SECRET")]
+    pub jwt_secret: String,
 }
 
 impl Config {
