@@ -16,6 +16,7 @@ use infrastructure::config::Config;
 use infrastructure::db::user_repo::PgUserRepository;
 use state::AppState;
 
+use crate::infrastructure::db::connect_redis;
 use crate::router::app_router;
 
 #[tokio::main]
@@ -32,12 +33,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .connect(&config.database_url)
         .await?;
 
+    let redis = connect_redis(&config.redis_url).await?;
+
     // Repository and state build (DI)
     let user_repo = Arc::new(PgUserRepository::new(pool.clone()));
     let state = AppState {
         config: config.clone(),
         db: pool,
         user_repo,
+        redis,
     };
 
     let app = app_router(state);

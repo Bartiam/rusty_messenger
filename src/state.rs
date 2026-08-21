@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use axum::extract::FromRef;
+use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
 use crate::domain::repositories::UserRepository;
@@ -10,6 +11,7 @@ pub struct AppState {
     pub config: Config,
     pub db: PgPool,
     pub user_repo: Arc<dyn UserRepository>,
+    pub redis: MultiplexedConnection,
 }
 
 impl FromRef<AppState> for PgPool {
