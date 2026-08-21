@@ -1,8 +1,4 @@
 use std::sync::Arc;
-use axum::{
-    routing::{get, post},
-    Router,
-};
 use sqlx::postgres::PgPoolOptions;
 use tokio::net::TcpListener;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -13,11 +9,14 @@ mod error;
 mod infrastructure;
 mod state;
 mod jwt;
+mod middleware;
+mod router;
 
-use api::handlers::{create_user_handler, health_check};
 use infrastructure::config::Config;
 use infrastructure::db::user_repo::PgUserRepository;
 use state::AppState;
+
+use crate::router::app_router;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -41,10 +40,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         user_repo,
     };
 
-    let app = Router::new()
-        .route("/health", get(health_check))
-        .route("/users", post(create_user_handler))
-        .with_state(state);
+    let app = app_router(state);
 
     let addr = format!("0.0.0.0:{}", config.port);
     let listener = TcpListener::bind(&addr).await?;

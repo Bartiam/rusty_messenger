@@ -9,6 +9,7 @@ pub enum AppError {
     NotFound,
     Internal,
     InvalidCredentials,
+    Unauthorized,
 }
 
 impl IntoResponse for AppError {
@@ -27,6 +28,9 @@ impl IntoResponse for AppError {
             AppError::InvalidCredentials => {
                 (StatusCode::UNAUTHORIZED, "Invalid email or password").into_response()
             },
+            AppError::Unauthorized => {
+                (StatusCode::UNAUTHORIZED, "Unauthorized access").into_response()
+            }
         }
     }
 }
