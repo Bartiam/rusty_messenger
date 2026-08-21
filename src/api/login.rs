@@ -35,7 +35,7 @@ pub async fn login_user(
     }
 
     // Generate a JWT using the secret key from the configuration.
-    let token = generate_jwt(&user.id.to_string(), &state.config.jwt_secret)
+    let token = generate_jwt(user.id, &state.config.jwt_secret)
         .map_err(|_| AppError::Internal)?;
 
     // Returning the token to the client

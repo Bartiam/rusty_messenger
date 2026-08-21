@@ -1,15 +1,16 @@
 use chrono::{Duration, Utc};
 use jsonwebtoken::{EncodingKey, Header, encode};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     /// User identifier (UUID as a string)
-    pub sub: String,
+    pub sub: Uuid,
     pub exp: usize,
 }
 
-pub fn generate_jwt(user_id: &str, secret: &str) 
+pub fn generate_jwt(user_id: Uuid, secret: &str) 
 -> Result<String, jsonwebtoken::errors::Error> {
     // The token will be valid for 24 hours.
     let expiration = Utc::now()
@@ -18,7 +19,7 @@ pub fn generate_jwt(user_id: &str, secret: &str)
         .timestamp() as usize;
 
     let claims = Claims {
-        sub: user_id.to_owned(),
+        sub: user_id,
         exp: expiration,
     };
 

@@ -13,6 +13,8 @@ mod error;
 mod infrastructure;
 mod state;
 mod jwt;
+mod middleware;
+mod router;
 
 use api::handlers::{create_user_handler, health_check};
 use infrastructure::config::Config;
