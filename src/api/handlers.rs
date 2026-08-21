@@ -1,5 +1,8 @@
+use axum::Extension;
+use axum::response::Response;
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use serde::Deserialize;
+use serde_json::json;
 use uuid::Uuid;
 
 use crate::domain:: {
@@ -7,6 +10,7 @@ use crate::domain:: {
     password::hash_password,
 };
 use crate::error::AppError;
+use crate::middleware::auth::CurrentUser;
 use crate::state::AppState;
 
 #[derive(Deserialize)]
@@ -43,4 +47,34 @@ pub async fn create_user_handler(
 
 pub async fn health_check() -> impl IntoResponse {
     StatusCode::OK
+}
+
+// PLUG FUNCTION //
+pub async fn create_chat_handler(
+    Extension(current_user): Extension<CurrentUser>,
+) -> impl IntoResponse {
+    Json(json!({
+        "message": "Chat created",
+        "user_id": current_user.id
+    }))
+}
+
+// PLUG FUNCTION //
+pub async fn send_message_handler(
+    Extension(current_user): Extension<CurrentUser>,
+) -> impl IntoResponse {
+    Json(json!({
+        "message": "Message sent",
+        "user_id": current_user.id
+    }))
+}
+
+// PLUG FUNCTION //
+pub async fn register_handler() -> impl IntoResponse {
+    Json(json!({ "message": "User registered" }))
+}
+
+// PLUG FUNCTION //
+pub async fn login_handler() -> impl IntoResponse {
+    Json(json!({ "token": "jwt_token_example" }))
 }
