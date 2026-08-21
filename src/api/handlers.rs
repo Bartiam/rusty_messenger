@@ -39,7 +39,7 @@ pub async fn create_user_handler(
 
 
     Ok(Json(UserProfile {
-        id: user.id.to_string(),
+        id: user.id,
         username: user.username,
         bio: None,
     }))

@@ -18,4 +18,6 @@ pub struct User {
     pub email: String,
     pub created_at: DateTime<Utc>,
     pub password_hash: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bio: Option<String>,
 }
