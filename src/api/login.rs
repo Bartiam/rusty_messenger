@@ -2,7 +2,11 @@ use axum::{Json, extract::State};
 use std::sync::Arc;
 use serde::{Serialize, Deserialize};
 
-use crate::{domain::password::verify_password, error::AppError, jwt::generate_jwt, state::AppState};
+use crate::{
+    domain::password::verify_password,
+    error::AppError, 
+    jwt::generate_jwt, 
+    state::AppState};
 
 
 #[derive(Deserialize)]
