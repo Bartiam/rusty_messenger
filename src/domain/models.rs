@@ -27,12 +27,14 @@ pub struct User {
 pub enum ChatType {
     Private,
     Group,
+    Channel,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum MemberRole {
     Admin,
+    Moderator,
     Member,
 }
 
