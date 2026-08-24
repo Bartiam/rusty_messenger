@@ -1,5 +1,8 @@
 use axum::{
-    extract::{Request, State},
+    extract::{
+        Request, 
+        State
+    },
     http::header::AUTHORIZATION, 
     middleware::Next, 
     response::Response
@@ -10,7 +13,10 @@ use jsonwebtoken::{
     decode
 };
 
-use redis::{AsyncCommands, aio::MultiplexedConnection};
+use redis::{
+    AsyncCommands, 
+    aio::MultiplexedConnection
+};
 use uuid::Uuid;
 
 use crate::{

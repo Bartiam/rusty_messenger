@@ -3,7 +3,7 @@ use axum::extract::FromRef;
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
-use crate::domain::repositories::UserRepository;
+use crate::domain::repositories::{ChatRepository, UserRepository};
 use crate::infrastructure::config::Config;
 
 #[derive(Clone)]
@@ -11,6 +11,7 @@ pub struct AppState {
     pub config: Config,
     pub db: PgPool,
     pub user_repo: Arc<dyn UserRepository>,
+    pub chat_repo: Arc<dyn ChatRepository>,
     pub redis: MultiplexedConnection,
 }
 
@@ -23,5 +24,11 @@ impl FromRef<AppState> for PgPool {
 impl FromRef<AppState> for Config {
     fn from_ref(app_state: &AppState) -> Config {
         app_state.config.clone()
+    }
+}
+
+impl FromRef<AppState> for Arc<dyn ChatRepository> {
+    fn from_ref(state: &AppState) -> Self {
+        state.chat_repo.clone()
     }
 }
