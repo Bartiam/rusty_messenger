@@ -1,7 +1,10 @@
 use std::sync::Arc;
 use sqlx::postgres::PgPoolOptions;
 use tokio::net::TcpListener;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::{
+    layer::SubscriberExt, 
+    util::SubscriberInitExt
+};
 
 mod api;
 mod domain;
@@ -17,6 +20,7 @@ use infrastructure::config::Config;
 use infrastructure::db::user_repo::PgUserRepository;
 use state::AppState;
 
+use crate::infrastructure::db::chat::PgChatRepository;
 use crate::infrastructure::db::connect_redis;
 use crate::router::app_router;
 
@@ -36,12 +40,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let redis = connect_redis(&config.redis_url).await?;
 
-    // Repository and state build (DI)
+    // Repositories and state build (DI)
     let user_repo = Arc::new(PgUserRepository::new(pool.clone()));
+    let chat_repo = Arc::new(PgChatRepository::new(pool.clone()));
+
     let state = AppState {
         config: config.clone(),
         db: pool,
         user_repo,
+        chat_repo,
         redis,
     };
 

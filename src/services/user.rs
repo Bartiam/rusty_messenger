@@ -1,8 +1,14 @@
-use redis::{AsyncCommands, aio::MultiplexedConnection};
+use redis::{
+    AsyncCommands, 
+    aio::MultiplexedConnection
+};
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{domain::models::UserProfile, error::AppError};
+use crate::{
+    domain::models::UserProfile, 
+    error::AppError
+};
 
 
 pub async fn get_user_profile(

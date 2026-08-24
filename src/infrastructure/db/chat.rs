@@ -1,6 +1,10 @@
+use async_trait::async_trait;
 use sqlx::PgPool;
 use uuid::Uuid;
-use crate::error::AppError;
+use crate::{
+    domain::repositories::ChatRepository, 
+    error::AppError
+};
 
 pub struct PgChatRepository {
     pool: PgPool,
@@ -10,11 +14,15 @@ impl PgChatRepository {
     pub fn new(pool: PgPool) -> Self {
         Self { pool }
     }
+}
 
-    pub async fn create_group_chat(
+#[async_trait]
+impl ChatRepository for PgChatRepository {
+    async fn create_group_chat(
         &self,
-        name: &str,
         creator_id: Uuid,
+        name: &str,
+        initial_members: &[Uuid],
     ) -> Result<Uuid, AppError> {
         // Start the transaction.
         let mut tx = self.pool.begin().await
@@ -42,6 +50,19 @@ impl PgChatRepository {
         .await
         .map_err(|_| AppError::Internal)?;
 
+        // Adding other participants
+        for member_id in initial_members {
+            // Skip it if the creator accidentally passed their ID in the list
+            if *member_id == creator_id { continue; }
+
+            sqlx::query!(
+                "INSERT INTO chat_members (chat_id, user_id, role) VALUES ($1, $2, 'member')",
+                chat_id, member_id,
+            )
+            .execute(&mut *tx)
+            .await?;
+        }
+
         // Explicitly record the transaction
         tx.commit().await
             .map_err(|_| AppError::Internal)?;
@@ -49,7 +70,7 @@ impl PgChatRepository {
         Ok(chat_id)
     }
 
-    pub async fn get_or_create_private_chat(
+    async fn get_or_create_private_chat(
         &self,
         user1_id: Uuid,
         user2_id: Uuid,

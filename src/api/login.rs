@@ -1,6 +1,11 @@
-use axum::{Json, extract::State};
+use axum::{
+    Json, 
+    extract::State
+};
 use std::sync::Arc;
-use serde::{Serialize, Deserialize};
+use serde::{
+    Serialize, Deserialize
+};
 
 use crate::{
     domain::password::verify_password,
