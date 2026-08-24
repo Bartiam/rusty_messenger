@@ -1,11 +1,12 @@
 use axum::{
-    Router, 
-    middleware, 
-    routing::post
+    Router, middleware, routing::{get, post}
 };
 
 use crate::{
-    api::handlers, 
+    api::handlers::{
+        self, 
+        health_check
+    }, 
     middleware::auth::auth_middleware, 
     state::AppState
 };
@@ -24,6 +25,7 @@ pub fn app_router(state: AppState) -> Router {
     
     // Create a router with public routes.
     let public_routes = Router::new()
+        .route("/health", get(health_check))
         .route("/auth/register", post(handlers::register_handler))
         .route("/auth/login", post(handlers::login_handler));
 

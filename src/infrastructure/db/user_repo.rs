@@ -30,7 +30,7 @@ impl UserRepository for PgUserRepository {
             r#"
             INSERT INTO users (id, username, email, password_hash)
             VALUES ($1, $2, $3, $4)
-            RETURNING id, username, email, created_at, password_hash
+            RETURNING id, username, email, created_at, password_hash, bio
             "#,
             id,
             username,
@@ -51,7 +51,7 @@ impl UserRepository for PgUserRepository {
         let user = sqlx::query_as!(
             User,
             r#"
-            SELECT id, username, email, created_at, password_hash
+            SELECT id, username, email, created_at, password_hash, bio
             FROM users
             WHERE id = $1
             "#,

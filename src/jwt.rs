@@ -8,6 +8,7 @@ pub struct Claims {
     /// User identifier (UUID as a string)
     pub sub: Uuid,
     pub exp: usize,
+    pub jti: Uuid,
 }
 
 pub fn generate_jwt(user_id: Uuid, secret: &str) 
@@ -21,6 +22,7 @@ pub fn generate_jwt(user_id: Uuid, secret: &str)
     let claims = Claims {
         sub: user_id,
         exp: expiration,
+        jti: Uuid::new_v4(),
     };
 
     // Generate the token: default Header (HS256) + our Claims + Secret Key

@@ -5,7 +5,7 @@ use uuid::Uuid;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserProfile {
-    pub id: String,
+    pub id: Uuid,
     pub username: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bio: Option<String>,
@@ -18,4 +18,6 @@ pub struct User {
     pub email: String,
     pub created_at: DateTime<Utc>,
     pub password_hash: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bio: Option<String>,
 }

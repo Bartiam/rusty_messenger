@@ -1,7 +1,8 @@
-FROM rust:1.97.1 AS builder
+FROM rust:1.98.0 AS builder
 WORKDIR /app
 
 COPY . .
+COPY .sqlx .sqlx
 ENV SQLX_OFFLINE=true
 
 RUN cargo build --release
