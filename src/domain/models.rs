@@ -22,16 +22,18 @@ pub struct User {
     pub bio: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, sqlx::Type)]
 #[serde(rename_all = "snake_case")]
+#[sqlx(type_name = "chat_type_enum)", rename_all = "snake_case")]
 pub enum ChatType {
     Private,
     Group,
     Channel,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, sqlx::Type)]
 #[serde(rename_all = "snake_case")]
+#[sqlx(type_name = "member_role_enum", rename_all = "snake_case")]
 pub enum MemberRole {
     Admin,
     Moderator,
