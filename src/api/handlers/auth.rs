@@ -1,15 +1,45 @@
 use axum::{
     Json, 
+    extract::State, 
     response::IntoResponse
+};
+use serde::{
+    Deserialize, 
+    Serialize
 };
 use serde_json::json;
 
-// PLUG FUNCTION //
-pub async fn register_handler() -> impl IntoResponse {
-    Json(json!({ "message": "User registered" }))
+use crate::{domain::password::verify_password, error::AppError, jwt::generate_jwt, state::AppState};
+
+#[derive(Deserialize)]
+pub struct LoginRequest {
+    pub email: String,
+    pub password: String,
 }
 
-// PLUG FUNCTION //
-pub async fn login_handler() -> impl IntoResponse {
-    Json(json!({ "token": "jwt_token_example" }))
+#[derive(Serialize)]
+pub struct AuthResponse {
+    pub token: String,
+}
+
+pub async fn login_user_handler(
+    State(state): State<AppState>,
+    Json(payload): Json<LoginRequest>,
+) -> Result<Json<AuthResponse>, AppError> {
+    // Looking for a user in the database via the Repository.
+    let user = state.user_repo.find_by_email(&payload.email)
+        .await?
+        .ok_or(AppError::InvalidCredentials)?;
+    
+    // Checking the Argon2id password hash.
+    if !verify_password(&payload.password, &user.password_hash)? {
+        return Err(AppError::InvalidCredentials);
+    }
+
+    // Generate a JWT using the secret key from the configuration.
+    let token = generate_jwt(user.id, &state.config.jwt_secret)
+        .map_err(|_| AppError::Internal)?;
+
+    // Returning the token to the client
+    Ok(Json(AuthResponse { token }))
 }
