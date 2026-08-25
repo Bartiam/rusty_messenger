@@ -1,13 +1,11 @@
 use argon2::{
-    password_hash::{
-        rand_core::OsRng,
+    Argon2, password_hash::{
         PasswordHash, 
         PasswordHasher, 
         PasswordVerifier, 
-        SaltString
+        SaltString, 
+        rand_core::OsRng
     },
-
-    Argon2,
 };
 
 use crate::error::AppError;
