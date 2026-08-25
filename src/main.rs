@@ -15,6 +15,7 @@ mod jwt;
 mod middleware;
 mod router;
 mod services;
+mod validation;
 
 use infrastructure::config::Config;
 use infrastructure::db::user_repo::PgUserRepository;
