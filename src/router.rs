@@ -10,13 +10,15 @@ use axum::{
 use crate::{
     api::handlers::{
         auth::{
-            login_user_handler, 
-            register_handler
+            login_user_handler,
         }, 
         chats::{
             create_group_chat, 
             create_private_chat
-        }, 
+        },
+        users::{
+            create_user_handler
+        },
         health_check, 
         messages::send_message_handler
     }, 
@@ -39,8 +41,8 @@ pub fn app_router(state: AppState) -> Router {
     // Create a router with public routes.
     let public_routes = Router::new()
         .route("/health", get(health_check))
-        .route("/auth/register", post(register_handler))
-        .route("/auth/login", post(login_user_handler));
+        .route("/auth/login", post(login_user_handler))
+        .route("/auth/register", post(create_user_handler));
 
     // Combining them
     Router::new()

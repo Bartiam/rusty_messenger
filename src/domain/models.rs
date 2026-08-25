@@ -30,7 +30,7 @@ pub struct User {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, sqlx::Type)]
 #[serde(rename_all = "snake_case")]
-#[sqlx(type_name = "chat_type_enum)", rename_all = "snake_case")]
+#[sqlx(type_name = "chat_type_enum", rename_all = "snake_case")]
 pub enum ChatType {
     Private,
     Group,

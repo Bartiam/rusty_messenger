@@ -22,11 +22,6 @@ pub struct AuthResponse {
     pub token: String,
 }
 
-// PLUG FUNCTION //
-pub async fn register_handler() -> impl IntoResponse {
-    Json(json!({ "message": "User registered" }))
-}
-
 pub async fn login_user_handler(
     State(state): State<AppState>,
     Json(payload): Json<LoginRequest>,
