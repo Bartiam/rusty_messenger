@@ -37,14 +37,13 @@ pub trait ChatRepository: Send + Sync {
 #[async_trait]
 pub trait MessageRepository: Send + Sync {
     async fn send_message(
-        &self, 
-        chat_id: Uuid, 
-        sender_id: Uuid, 
-        content: String, 
-        include_deleted: bool
+        &self,
+        chat_id: Uuid,
+        sender_id: Uuid,
+        content: &str,
     ) -> Result<Message, AppError>;
 
-    async fn get_message(
+    async fn get_messages(
         &self,
         chat_id: Uuid,
         limit: i64,

@@ -1,0 +1,1 @@
+ALTER TABLE messages ALTER COLUMN chat_id DROP NOT NULL;
