@@ -17,7 +17,7 @@ use crate::{
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct CreateUserRequest {
-    #[validate(length(min = 3, max = 40, message = "Username must be between 3 and 50 characters"))]
+    #[validate(length(min = 3, max = 40, message = "Username must be between 3 and 40 characters"))]
     pub username: String,
     #[validate(email(message = "Invalid email format"))]
     pub email: String,

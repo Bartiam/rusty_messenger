@@ -8,7 +8,11 @@ use serde::{
 };
 use validator::Validate;
 
-use crate::{domain::password::verify_password, error::AppError, jwt::generate_jwt, state::AppState};
+use crate::{
+    domain::password::verify_password, 
+    error::AppError, jwt::generate_jwt, 
+    state::AppState
+};
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct LoginRequest {

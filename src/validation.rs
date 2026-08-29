@@ -1,8 +1,9 @@
-use axum::{Extension, Json};
-use uuid::Uuid;
-use validator::{ValidationError, ValidationErrors};
+use validator::{
+    ValidationError, 
+    ValidationErrors
+};
 
-use crate::{api::handlers::chats::{CreateGroupChatReq, CreatePrivateChatReq}, error::AppError, middleware::auth::CurrentUser};
+use crate::error::AppError;
 
 /// Checks password complexity: at least 8 characters, 
 /// includes a capital letter, a lowercase letter, and a digit.
