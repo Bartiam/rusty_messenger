@@ -74,7 +74,7 @@ pub struct Message {
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct SendMessageRequest {
-    #[validate(length(min = 1, max = 32768, message = "The message must contain between 1 and 32,768 characters."))]
+    #[validate(length(min = 1, max = 30000, message = "The message must contain between 1 and 30,000 characters."))]
     pub content: String,
 }
 
