@@ -1,19 +1,24 @@
 use axum::{
     Json, 
     extract::State, 
-    response::IntoResponse
 };
 use serde::{
     Deserialize, 
     Serialize
 };
-use serde_json::json;
+use validator::Validate;
 
-use crate::{domain::password::verify_password, error::AppError, jwt::generate_jwt, state::AppState};
+use crate::{
+    domain::password::verify_password, 
+    error::AppError, jwt::generate_jwt, 
+    state::AppState
+};
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 pub struct LoginRequest {
+    #[validate(email)]
     pub email: String,
+    #[validate(length(min = 1, message = "The password cannot be empty."))]
     pub password: String,
 }
 

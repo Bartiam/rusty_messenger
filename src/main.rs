@@ -15,12 +15,14 @@ mod jwt;
 mod middleware;
 mod router;
 mod services;
+mod validation;
 
 use infrastructure::config::Config;
 use infrastructure::db::user_repo::PgUserRepository;
 use state::AppState;
 
 use crate::infrastructure::db::chat::PgChatRepository;
+use crate::infrastructure::db::message_repo::PgMessageRepository;
 use crate::infrastructure::db::connect_redis;
 use crate::router::app_router;
 
@@ -43,12 +45,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Repositories and state build (DI)
     let user_repo = Arc::new(PgUserRepository::new(pool.clone()));
     let chat_repo = Arc::new(PgChatRepository::new(pool.clone()));
+    let message_repo = Arc::new(PgMessageRepository::new(pool.clone()));
 
     let state = AppState {
         config: config.clone(),
         db: pool,
         user_repo,
         chat_repo,
+        message_repo,
         redis,
     };
 

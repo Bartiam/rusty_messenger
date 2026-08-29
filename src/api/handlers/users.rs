@@ -4,20 +4,24 @@ use axum::{
 };
 use serde::Deserialize;
 use uuid::Uuid;
+use validator::Validate;
 
 use crate::{
     domain::{
         models::UserProfile, 
         password::hash_password
-    }, 
-    error::AppError, 
-    state::AppState
+    }, error::AppError, 
+    state::AppState, 
+    validation::validate_input
 };
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 pub struct CreateUserRequest {
+    #[validate(length(min = 3, max = 40, message = "Username must be between 3 and 40 characters"))]
     pub username: String,
+    #[validate(email(message = "Invalid email format"))]
     pub email: String,
+    #[validate(custom(function = "crate::validation::validate_password"))]
     pub password: String,
 }
 
@@ -25,6 +29,8 @@ pub async fn create_user_handler(
     State(state): State<AppState>,
     Json(payload): Json<CreateUserRequest>,
 ) -> Result<Json<UserProfile>, AppError> {
+    validate_input(&payload)?;
+
     // Hash the password (CPU‑bound operation)
     let hashed_password = hash_password(&payload.password)?;
 

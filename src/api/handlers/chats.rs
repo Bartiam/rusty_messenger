@@ -9,6 +9,7 @@ use axum::{
 };
 use serde::Deserialize;
 use uuid::Uuid;
+use validator::Validate;
 
 use crate::{
     domain::repositories::ChatRepository, 
@@ -16,14 +17,16 @@ use crate::{
     middleware::auth::CurrentUser
 };
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 pub struct CreatePrivateChatReq {
     pub target_user_id: Uuid,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 pub struct CreateGroupChatReq {
+    #[validate(length(min = 3, max = 100, message = "Title must be between 3 and 100 characters."))]
     pub title: String,
+    #[validate(length(min = 1, message = "At least one member os required"))]
     pub members: Vec<Uuid>,
 }
 
@@ -50,7 +53,7 @@ pub async fn create_group_chat(
     Extension(current_user): Extension<CurrentUser>,
     Json(payload): Json<CreateGroupChatReq>,
 ) -> Result<impl IntoResponse, AppError> {
-    // Базовая валидация
+    // Base validate
     if payload.title.trim().is_empty() {
         return Err(AppError::InvalidInput("Title cannot be empty".into()));
     }
