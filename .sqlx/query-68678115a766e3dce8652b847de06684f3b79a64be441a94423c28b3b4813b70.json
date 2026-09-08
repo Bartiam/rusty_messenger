@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT c.id\n            FROM chats c\n            JOIN chat_members m1 ON c.id = m1.chat_id\n            JOIN chat_members m2 ON c.id = m2.chat_id\n            WHERE c.chat_type = 'private'\n              AND m1.user_id = $1\n              AND m2.user_id = $2\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chats",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "68678115a766e3dce8652b847de06684f3b79a64be441a94423c28b3b4813b70"
+}
