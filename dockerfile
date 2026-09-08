@@ -12,6 +12,6 @@ WORKDIR /app
 
 COPY --from=builder /app/target/release/rusty_messenger /app/rusty_messenger
 
-EXPOSE 3000
+EXPOSE 8080
 
 CMD ["./rusty_messenger"]
