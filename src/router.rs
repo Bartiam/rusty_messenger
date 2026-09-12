@@ -22,7 +22,8 @@ use crate::{
             delete_message_handler, 
             admin_get_user_messages
         }, 
-        users::create_user_handler
+        users::create_user_handler,
+        websocket::websocket_handler
     }, 
     middleware::auth::auth_middleware, 
     state::AppState
@@ -42,7 +43,8 @@ pub fn app_router(state: AppState) -> Router {
     let public_routes = Router::new()
         .route("/health", get(health_check))
         .route("/auth/login", post(login_user_handler))
-        .route("/auth/register", post(create_user_handler));
+        .route("/auth/register", post(create_user_handler))
+        .route("/ws", get(websocket_handler));
 
     Router::new()
         .merge(private_routes)
