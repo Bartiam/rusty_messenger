@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{error::AppError, jwt::Claims, state::AppState};
 
 #[derive(Debug, Deserialize)]
-struct WebSocketQuery {
+pub struct WebSocketQuery {
     pub token: String,
 }
 
@@ -24,7 +24,7 @@ pub async fn websocket_handler(
 ) -> Result<impl IntoResponse, AppError> {
     let user_id = validate_token(&query.token, &state.config.jwt_secret)?;
 
-    Ok(ws.on_upgrade(|socket| handle_socket(socket, state, user_id)))
+    Ok(ws.on_upgrade(move |socket| handle_socket(socket, state, user_id)))
 }
 
 async fn handle_socket(socket: WebSocket, state: AppState, user_id: Uuid) {
@@ -39,7 +39,7 @@ async fn handle_socket(socket: WebSocket, state: AppState, user_id: Uuid) {
     state.connections.insert(user_id, tx);
 
     // Task for sending messages via WebSocket
-    let mut send_task = tokio::spawn(async move {
+    let send_task = tokio::spawn(async move {
         while let Some(msg) = rx.recv().await {
             if sender.send(msg).await.is_err() {
                 break;
