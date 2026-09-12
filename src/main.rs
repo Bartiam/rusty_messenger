@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use dashmap::DashMap;
 use sqlx::postgres::PgPoolOptions;
 use tokio::net::TcpListener;
 use tracing_subscriber::{
@@ -47,6 +48,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let chat_repo = Arc::new(PgChatRepository::new(pool.clone()));
     let message_repo = Arc::new(PgMessageRepository::new(pool.clone()));
 
+    let connections = Arc::new(DashMap::new());
+
     let state = AppState {
         config: config.clone(),
         db: pool,
@@ -54,6 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         chat_repo,
         message_repo,
         redis,
+        connections,
     };
 
     let app = app_router(state);

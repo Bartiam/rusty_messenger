@@ -1,7 +1,9 @@
 use std::sync::Arc;
 use axum::extract::FromRef;
+use dashmap::DashMap;
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
+use uuid::Uuid;
 
 use crate::domain::repositories::{
     ChatRepository, 
@@ -18,6 +20,7 @@ pub struct AppState {
     pub chat_repo: Arc<dyn ChatRepository>,
     pub message_repo: Arc<dyn MessageRepository>,
     pub redis: MultiplexedConnection,
+    pub connections: Arc<DashMap<Uuid, tokio::sync::mpsc::UnboundedSender<axum::extract::ws::Message>>>,
 }
 
 impl FromRef<AppState> for PgPool {
