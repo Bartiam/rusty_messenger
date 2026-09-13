@@ -54,8 +54,6 @@ async fn handle_socket(socket: WebSocket, state: AppState, user_id: Uuid) {
     // Create a channel for sending messages from other tasks
     let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
 
-    // Sokhranyayem tx v obshcheye khranilishche
-
     // Save the tx to the shared storage
     state.connections.insert(user_id, tx);
 
@@ -93,11 +91,33 @@ async fn handle_incoming_message(state: &AppState, user_id: Uuid, text: String) 
         Err(_) => return,
     };
 
-    // Get all chat participants
-    // Temporarily just sending it back to the sender (for testing).
-    if let Some(tx) = state.connections.get(&user_id) {
-        let text = serde_json::to_string(&saved).unwrap();
-        let _ = tx.send(Message::Text(text.into()));
+    let is_member = state
+        .message_repo
+        .is_user_in_chat(user_id, msg.chat_id)
+        .await
+        .unwrap_or(false);
+
+    if !is_member {
+        return;
+    }
+
+    // Get all members from chat
+    let members = match state.chat_repo.get_chat_members(msg.chat_id).await {
+        Ok(m) => m,
+        Err(_) => return,
+    };
+
+    // Serialize the message once
+    let payload = match serde_json::to_string(&saved) {
+        Ok(p) => p,
+        Err(_) => return,
+    };
+
+    // Send to all participants with an active connection
+    for member_id in members {
+        if let Some(tx) = state.connections.get(&member_id) {
+            let _ = tx.send(Message::Text(payload.clone().into()));
+        }
     }
 }
 
