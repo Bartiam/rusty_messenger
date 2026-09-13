@@ -129,4 +129,18 @@ impl ChatRepository for PgChatRepository {
 
         Ok(new_chat_id)
     }
+
+    async fn get_chat_members(
+        &self, 
+        chat_id: Uuid
+    ) -> Result<Vec<Uuid>, AppError> {
+        let members = sqlx::query_scalar!(
+            "SELECT user_id FROM chat_members WHERE chat_id = $1",
+            chat_id,
+        )
+        .fetch_all(&self.pool)
+        .await?;
+        
+        Ok(members)
+    }
 }

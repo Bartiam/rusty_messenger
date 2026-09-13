@@ -32,6 +32,11 @@ pub trait ChatRepository: Send + Sync {
         user1_id: Uuid, 
         user2_id: Uuid
     ) -> Result<Uuid, AppError>;
+
+    async fn get_chat_members(
+        &self, 
+        chat_id: Uuid
+    ) -> Result<Vec<Uuid>, AppError>;
 }
 
 #[async_trait]
