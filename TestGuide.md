@@ -198,7 +198,7 @@
 Отправь в терминале Alice:
 
     ```json
-    {"chat_id": "'$CHAT_ID'", "content": "Привет через WebSocket!"}
+    {"chat_id": "ID чата", "content": "Привет через WebSocket!"}
     ```
 
 **Ожидаемый результат:** Bob получает JSON с сообщением.
