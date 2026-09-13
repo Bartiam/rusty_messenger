@@ -1,10 +1,31 @@
-use axum::{extract::{Query, State, WebSocketUpgrade, ws::{WebSocket, Message}}, response::IntoResponse};
-use futures_util::{SinkExt, StreamExt};
-use jsonwebtoken::{decode, DecodingKey, Validation};
+use axum::{
+    extract::{
+        Query, 
+        State, 
+        WebSocketUpgrade, 
+        ws::{
+            WebSocket, 
+            Message
+        }}, 
+        response::IntoResponse
+    };
+use futures_util::{
+    SinkExt, 
+    StreamExt
+};
+use jsonwebtoken::{
+    decode, 
+    DecodingKey, 
+    Validation
+};
 use serde::Deserialize;
 use uuid::Uuid;
 
-use crate::{error::AppError, jwt::Claims, state::AppState};
+use crate::{
+    error::AppError, 
+    jwt::Claims, 
+    state::AppState
+};
 
 #[derive(Debug, Deserialize)]
 pub struct WebSocketQuery {
