@@ -68,9 +68,17 @@ async fn handle_socket(socket: WebSocket, state: AppState, user_id: Uuid) {
 
     // Processing incoming messages
     while let Some(Ok(msg)) = receiver.next().await {
-        if let Message::Text(text) = msg {
-            // Processing a text message (JSON parsing, saving to the database, broadcasting)
-            handle_incoming_message(&state, user_id, text.to_string()).await;
+        match msg {
+            Message::Text(text) => {
+                handle_incoming_message(&state, user_id, text.to_string()).await;
+            }
+            Message::Close(_) => {
+                tracing::info!("User {} disconnected", user_id);
+            }
+            Message::Ping(data) => {
+                tracing::trace!("Ping from {}: {:?}", user_id, data);
+            }
+            _ => {}
         }
     }
 
@@ -85,12 +93,6 @@ async fn handle_incoming_message(state: &AppState, user_id: Uuid, text: String) 
         Err(_) => return,
     };
 
-    // Save to the database
-    let saved = match state.message_repo.send_message(msg.chat_id, user_id, &msg.content).await {
-        Ok(m) => m,
-        Err(_) => return,
-    };
-
     let is_member = state
         .message_repo
         .is_user_in_chat(user_id, msg.chat_id)
@@ -100,6 +102,12 @@ async fn handle_incoming_message(state: &AppState, user_id: Uuid, text: String) 
     if !is_member {
         return;
     }
+
+    // Save to the database
+    let saved = match state.message_repo.send_message(msg.chat_id, user_id, &msg.content).await {
+        Ok(m) => m,
+        Err(_) => return,
+    };
 
     // Get all members from chat
     let members = match state.chat_repo.get_chat_members(msg.chat_id).await {

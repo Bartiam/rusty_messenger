@@ -4,6 +4,7 @@
     ```bash
     # Установи BASE (порт из твоего .env)
     export BASE="http://localhost:8080"
+    echo "BASE: $BASE"
     ```
 
     Убедись, что:
@@ -147,3 +148,57 @@
     curl -i "$BASE/chats/$CHAT_ID/messages?limit=10&offset=0" \
     -H "Authorization: Bearer $ALICE_TOKEN"
     ```
+
+**Ожидаемый результат:** `200 OK` + массив сообщений.
+
+---
+
+## 10. Мягкое удаление сообщения
+    ```bash
+    export MSG_ID="UUID сообщения"
+
+    echo "MSG_ID: $MSG_ID"
+
+    curl -i -X DELETE $BASE/messages/$MSG_ID \
+    -H "Authorization: Bearer $ALICE_TOKEN"
+    ```
+
+**Ожидаемый результат:** `204 No Content`.
+
+    Проверь, что сообщение исчезло из истории:
+
+    ```bash
+    curl -s "$BASE/chats/$CHAT_ID/messages?limit=10&offset=0" \
+    -H "Authorization: Bearer $ALICE_TOKEN" | jq
+    ```
+
+---
+
+## 11. WebSocket
+    Установи `websocat`:
+
+    ```bash
+    cargo install websocat
+    ```
+
+Открой два терминала:
+
+**Терминал 1 (Bob):**
+
+    ```bash
+    websocat "ws://localhost:8080/ws?token=$BOB_TOKEN"
+    ```
+
+**Терминал 2 (Alice):**
+
+    ```bash
+    websocat "ws://localhost:8080/ws?token=$ALICE_TOKEN"
+    ```
+
+Отправь в терминале Alice:
+
+    ```json
+    {"chat_id": "'$CHAT_ID'", "content": "Привет через WebSocket!"}
+    ```
+
+**Ожидаемый результат:** Bob получает JSON с сообщением.
